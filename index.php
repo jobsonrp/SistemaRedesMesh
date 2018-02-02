@@ -8,9 +8,34 @@
 	$cor[2] = '#006600';
 	$cor[3] = '#ff0066';
 	
+	$dateNow = new DateTime();
+	$dateNow->setTimezone(new DateTimeZone('America/Recife'));
+	$fdateNow = $dateNow->format('Y-m-d H:i:s');
+	$dateEndInitial = $fdateNow;
+	$dateNow->modify('-30 day');
+	$dateBeginInitial = $dateNow->format('Y-m-d H:i:s');
+	
+	if(!isset($_GET['data1'])){
+		$data1= $dateBeginInitial; //$dateBeginInitial;// 
+	}
+	else{
+		$data1=$_GET['data1'];
+	}
+	
+	if(!isset($_GET['data2'])){
+		$data2= $dateEndInitial; //$dateEndInitial;
+	}
+	else{
+		$data2=$_GET['data2'];
+	}
+	
+	
 	$conexao = mysqli_connect("127.0.0.1", "root", "", "meshdb");
 	
-	$sql = "select * from sistemaTeste";
+	$sql = "select qtd,tempo from sistemaTeste where time between '$data1' and '$data2'";
+	//$sql = "select * from sistemaTeste where tempo > 12"; 
+	
+	//$sql = "select * from sistemaTeste";
 	$resultado = mysqli_query($conexao,$sql);
 	
 	$i = 0;
@@ -81,10 +106,9 @@
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav navbar-right">
             <li class="active"><a href="#top-section">Home</a></li>
-            <li><a href="#Section-1">Login</a></li>
-            <li><a href="#Section-2">Gráficos</a></li>
-            <li><a href="#Section-3">Cadastro</a></li>
-            <li><a href="#Section-4">Contato</a></li>
+            <li><a href="#Section-1">Gráfico 1</a></li>
+            <li><a href="#Section-2">Gráfico 2</a></li>
+            <li><a href="#Section-4">Alunos</a></li>
             
         </ul>
     </div>
@@ -99,28 +123,28 @@
             <div class="active item" id="slide_1">
                 <div class="carousel-content">
                     <div class="animated fadeInDownBig">
-                         <h1>Safecampus, a segurança até você.</h1>
+                         <h1>Sistema Web - Redes Mesh .</h1>
                     </div>
                     <br/>
-                    <a href="#Section-1" class="buttonyellow animated fadeInLeftBig"><b>Login</b></a>
+                    <a href="#Section-1" class="buttonyellow animated fadeInLeftBig"><b>Gráfico 1</b></a>
                 </div>
             </div>
             <div class="item" id="slide_2">
                 <div class="carousel-content">
                     <div class="animated fadeInDownBig">
-                         <h1>Praticidade e agilidade no relato de ocorrências.</h1>
+                         <h1>Disciplinas de Redes - RSI</h1>
                     </div>
                     <br/>
-                    <a href="#Section-2" class="buttoncolor animated fadeInRightBig"><b>Cadastro</b></a>
+                    <a href="#Section-4" class="buttoncolor animated fadeInRightBig"><b>Alunos</b></a>
                 </div>
             </div>
             <div class="item" id="slide_3">
                 <div class="carousel-content">
                     <div class="animated fadeInDownBig">
-                         <h1>Ajuda a tornar a universidade um ambiente mais tranquilo para se estudar, trabalhar ou visitar.</h1>
+                         <h1>Redes Mesh ...</h1>
                     </div>
                         <br/>
-                        <a href="http://www.ufrpe.br/br" class="buttonyellow animated fadeInLeftBig"><b>UFRPE</b></a>
+                        <a href="https://github.com/flushedlucas/MeshSniffer" class="buttonyellow animated fadeInLeftBig"><b>Projeto</b></a>
                 </div>
             </div>
         </div>
@@ -144,9 +168,9 @@
 	</div>
 </div>
 <div class="row animated fadeInUpNow">
-		<form action="" >
+		<form action = "index.php#Section-1" >
 				<caption>Opções de busca:</caption>
-						<select class="form-control" id="tipoBusca" name="tipoBusca" required>
+						<select class="form-control" id="tipoBusca" name="tipoBusca">
 							<option selected="selected" value="">Todos</option>
 							<option value="Data" >Por data</option>
 						</select>
@@ -156,8 +180,11 @@
 							Data Final:<input class="form-control" id="data2" name="data2" type="date" />
 						</div>
 
-						<button type="button" class="btn-primary btn-lg pull-right" onclick="mostraInfo();carregarItens();">Buscar</button>
+						<input class="btn-primary btn-lg pull-right" type="submit" value="Plotar"></input>
 		</form>
+		</br>
+		<?php echo "Data 1 = $data1" ?> </br>
+		<?php echo "Data 2 = $data2" ?>
 		
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script type="text/javascript">
@@ -189,7 +216,7 @@
         title: "Quantidade de MAC's por janelas de Tempo",
         width: 800,
         height: 400,
-        vAxis: {title: "Quantidade de MAC's"},
+        vAxis: {title: "Quantidade de MAC's capturados"},
         hAxis: {title: "Tempo (min)"},
         bar: {groupWidth: "95%"},
         legend: { position: "none" },
@@ -210,7 +237,7 @@
 <div class="container">
 <div class="row">
     <div class="page-header text-center col-sm-12 col-lg-12 animated fade">
-        <h1>Contatos</h1>
+        <h1>Alunos</h1>
     </div>
 </div>
 <div class="row testimonials animated fadeInUpNow">
@@ -224,14 +251,14 @@
                 </div>
                 <div class="testimonials-carousel-context">
                     <div class="testimonials-name">
-                         Contato 1 <span>safecammpus.pe.hu</span>
+                         Aluno 1 <span>redesmesh</span>
                     </div>
                     <div class="testimonials-carousel-content">
                         <p>
                              Telefone: (81) 91919-9191
                         </p>
                         <p>
-                             E-mail: contato1@com
+                             E-mail: aluno1@com
                         </p>
                     </div>
                 </div>
@@ -242,7 +269,7 @@
                 </div>
                 <div class="testimonials-carousel-context">
                     <div class="testimonials-name">
-                         Contato 2 <span>safecammpus.pe.hu</span>
+                         Aluno 2 <span>redesmesh</span>
                     </div>
                     <div class="testimonials-carousel-content">
                         <p>
@@ -250,7 +277,7 @@
                         </p>
                     </div>
                     <p>
-                         E-mail: contato2@com
+                         E-mail: aluno2@com
                     </p>
                 </div>
             </div>
@@ -260,7 +287,7 @@
                 </div>
                 <div class="testimonials-carousel-context">
                     <div class="testimonials-name">
-                         Contato 3 <span>safecammpus.pe.hu</span>
+                         Aluno 3 <span>redesmesh</span>
                     </div>
                     <div class="testimonials-carousel-content">
                         <p>
@@ -268,7 +295,7 @@
                         </p>
                     </div>
                     <p>
-                         E-mail: contato3@com
+                         E-mail: aluno3@com
                     </p>
                 </div>
             </div>
