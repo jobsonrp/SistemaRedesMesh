@@ -4,78 +4,85 @@
 	$cor = array();
 	
 	$cor[0] = '#ff3300';
-	$cor[1] = '#0000ff';
+	$cor[1] = '#77787A';
 	$cor[2] = '#006600';
-	$cor[3] = '#ff0066';
+	$cor[3] = '#0000ff';
+	$cor[4] = '#0A0A0A';
+	$cor[5] = '#E3D519';
+	$cor[6] = '#0DEFF3';
+	$cor[7] = '#E3820D';
+	$cor[8] = '#9BF30D';
+	$cor[9] = '#9D99CA';
+	$cor[10] = '#BCA57E';
+	$cor[11] = '#A1B596';
+	$cor[12] = '#7FACA2';
 	
 	$dateNow = new DateTime();
 	$dateNow->setTimezone(new DateTimeZone('America/Recife'));
-	
-	$dateX = $dateNow->format('Y-m-d');
-	
-	$fdateNow = $dateNow->format('Y-m-d');
-	$dateEndInitial = $fdateNow;
-	$dateNow->modify('-30 day');
-	$dateBeginInitial = $dateNow->format('Y-m-d');
-	
-	$dateTeste = new DateTime('2006-12-12 10:05:58');
-	$dateTeste->modify('+ 5 min');
-	$dateNewTeste = $dateTeste->format('Y-m-d H:i:s');
-	
+	$dataAtual = $dateNow->format('Y-m-d');
 	
 	if(!isset($_GET['data1'])){
-		$data1= $dateBeginInitial; // 2018-01-05 09:31:00
+		$data1= $dataAtual; // 2018-01-05 09:31:00
 	}
 	else{
 		$data1=$_GET['data1'];
 	}
 	
 	if(!isset($_GET['hora1'])){
-		$hora1= '00:00';
+		$hora1= '09:00';
 	}
 	else{
 		$hora1=$_GET['hora1'];
 	}
 	
 	if(!isset($_GET['data2'])){
-		$data2= $dateEndInitial; // 2018-01-05 09:31:00
+		$data2= $dataAtual; // 2018-01-05 09:31:00
 	}
 	else{
 		$data2=$_GET['data2'];
 	}
 	
 	if(!isset($_GET['hora2'])){
-		$hora2= '01:00';
+		$hora2= '10:00';
 	}
 	else{
 		$hora2=$_GET['hora2'];
 	}
 	
-	//$data1 = $data1 . " " . $hora1;
-	//$data2 = $data2 . " " . $hora2;
+	if(!isset($_GET['intervalo'])){
+		$intervalo = '5';
+	}
+	else{
+		$intervalo = $_GET['intervalo'];
+	}
 	
+	$dt1 = new DateTime($data1 . " " . $hora1);
+	
+	$dt2 = new DateTime($data1 . " " . $hora1);
+	$dt2->modify('+ ' . $intervalo . ' min');
+	
+	$dtFinal = new DateTime($data2 . " " . $hora2);
 	
 	$conexao = mysqli_connect("127.0.0.1", "root", "", "meshdb");
 	
-	//$sql = "select qtd,tempo from sistemaTeste where time between '$data1' and '$data2'"; OK
-	//$sql = "select * from sistemaTeste where tempo > 12";
-	//$sql = "select count(addr) as qtd from dadosMesh where time between '$data1' and '$data2'";
-	//select count(addr) as qtd, ssid from dadosMesh GROUP BY ssid; 
-	//"SELECT COUNT(Mac) as total, Mac  FROM dados where dataAlter >= '" + maskedTextBox1.Text.Trim() + "' and dataAlter >= '"+ maskedTextBox2.Text.Trim() + "' group by Ssid";
-	
-	$sql = "select * from sistemaTeste";
-	$resultado = mysqli_query($conexao,$sql);
-	
 	$i = 0;
 	
-	while ($row = mysqli_fetch_object($resultado)){
+	while ($dt1 < $dtFinal){
+		$dt1_Str = $dt1->format('Y-m-d H:i:s');
+		$dt2_Str = $dt2->format('Y-m-d H:i:s');
+		
+		$sql = "select count(addr) as qtd from (select addr from dadosTeste where datetime between '$dt1_Str' and '$dt2_Str' group by addr) grp";
+		$resultado = mysqli_query($conexao,$sql);
+		$row = mysqli_fetch_object($resultado);
 		$qtd = $row -> qtd;
-		$tempo = $row -> tempo;
 		$qtds[$i] = $qtd;
+		$tempo = $dt1_Str;
 		$tempos[$i] = $tempo;
 		$i = $i + 1;
+		$dt1->modify('+ ' . $intervalo . ' min');
+		$dt2->modify('+ ' . $intervalo . ' min');
 	}
-
+	
 ?>
 
 <!DOCTYPE html>
@@ -204,19 +211,18 @@
 						</select>
 
 						<div id="busca_data">
-							Data Inicial:<input class="form-control" id="data1" name="data1" type="date" value = <?php echo $dateX ?> required/>
-							Hora Inicial:<input class="form-control" id="hora1" name="hora1" type="time" required/>
-							Data Final:<input class="form-control" id="data2" name="data2" type="date" required/>
-							Hora Final:<input class="form-control" id="hora2" name="hora2" type="time" required/>
+							Data Inicial:<input class="form-control" id="data1" name="data1" type="date" value = <?php echo $data1 ?> required/>
+							Hora Inicial:<input class="form-control" id="hora1" name="hora1" type="time" value = <?php echo $hora1 ?> required/>
+							Data Final:<input class="form-control" id="data2" name="data2" type="date" value = <?php echo $data2 ?> required/>
+							Hora Final:<input class="form-control" id="hora2" name="hora2" type="time" value = <?php echo $hora2 ?> required/>
+							Intervalo de Tempo:<input class="form-control" id="intervalo" name="intervalo" type="text" value = <?php echo $intervalo ?> required/>
 						</div>
 
 						<input class="btn-primary btn-lg pull-right" type="submit" value="Plotar"></input>
 		</form>
-		</br>
-		<?php echo "Data X = $dateX" ?> </br>
-		<?php echo "Data 2 = $data2" ?> </br>
-		<?php echo "dateNewTeste = $dateNewTeste" ?>
 		
+</br></br></br>
+	
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script type="text/javascript">
     google.charts.load("current", {packages:['corechart']});
@@ -225,13 +231,20 @@
       var data = google.visualization.arrayToDataTable([
         ["Tempo", "Qdt", { role: "style" } ],
 		<?php 
+		$c = 0;
 		$k = $i;
 		for ($i=0; $i < $k; $i++){
 		?>
 
-		['<?php echo $tempos[$i] ?>', <?php echo $qtds[$i] ?>, '<?php echo $cor[$i] ?>'],
+		['<?php echo $tempos[$i] ?>', <?php echo $qtds[$i] ?>, '<?php echo $cor[$c] ?>'],
 
-		<?php } ?>
+		<?php 
+		$c = $c + 1;
+		if($c > 12){
+			$c = 0;
+			}
+			
+		} ?>
         
       ]);
 
