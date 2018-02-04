@@ -180,7 +180,7 @@
 
 </head>
 <!-- /head-->
-<body data-spy="scroll" data-target=".navbar">
+<body data-spy="scroll" data-target=".navbar" onload="mostrarGrafs();">
 <nav id="topnav" class="navbar navbar-fixed-top navbar-default" role="navigation">
 <div class="container">
     <!-- Brand and toggle get grouped for better mobile display -->
@@ -197,8 +197,7 @@
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav navbar-right">
             <li class="active"><a href="#top-section">Home</a></li>
-            <li><a href="#Section-1">Gráfico 1</a></li>
-            <li><a href="#Section-3">Gráfico 2</a></li>
+            <li><a href="#Section-1">Graficos</a></li>
             <li><a href="#Section-4">Alunos</a></li>
             
         </ul>
@@ -259,15 +258,15 @@
 	</div>
 </div>
 <div class="row animated fadeInUpNow">
-		<form action = "index.php#Section-1" >
+		<form action = "#Section-1">
 				<caption>Opções de busca:</caption>
-						<select class="form-control" id="tipoBusca" name="tipoBusca" value = <?php echo $tipoBusca ?>>
-							<option value="">Escolha uma opção</option>
-							<option value="Data" >Por data</option>
-							<option value="Potencia" >Por Faixa de Potência</option>
-						</select>
-
 						<div>
+				
+							<select class="form-control" id="tipoBusca" name="tipoBusca" value = <?php echo $tipoBusca ?>>
+								<option value="Data" <?php if ($_GET['tipoBusca'] == 'Data') echo 'selected="selected"'; ?> >Por Intervalo de Tempo</option>
+								<option value="Potencia" <?php if ($_GET['tipoBusca'] == 'Potencia') echo 'selected="selected"'; ?> >Por Faixa de Potência</option>
+							</select>
+		
 							Data Inicial:<input class="form-control" id="data1" name="data1" type="date" value = <?php echo $data1 ?> required/>
 							Hora Inicial:<input class="form-control" id="hora1" name="hora1" type="time" value = <?php echo $hora1 ?> required/>
 							Data Final:<input class="form-control" id="data2" name="data2" type="date" value = <?php echo $data2 ?> required/>
@@ -514,7 +513,7 @@
 <script>
 $(document).ready(function(){
   $("#grafico1").hide();
-    $('#tipoBusca').on('change', function() {
+    $('#tipoBusca').on('click', function() {
       if ( this.value == 'Data')
       {
         $("#grafico1").show();
@@ -530,7 +529,7 @@ $(document).ready(function(){
 <script>
 $(document).ready(function(){
   $("#grafico2").hide();
-    $('#tipoBusca').on('change', function() {
+    $('#tipoBusca').on('click', function() {
       if ( this.value == 'Potencia')
       {
         $("#grafico2").show();
@@ -541,6 +540,25 @@ $(document).ready(function(){
       }
     });
 });
+</script>
+
+<script>
+function mostrarGrafs() {
+    var x = document.getElementById('grafico1');
+    var y = document.getElementById('grafico2');
+    var z = document.getElementById('tipoBusca');
+    //var x = document.getElementById('infoPerfil');
+    //z.selectedIndex = 1;
+    if (z.value === 'Data') {
+        x.style.display = 'block';
+        z.selectedIndex = 0;
+    }
+    else if (z.value === 'Potencia') {
+        y.style.display = 'block';
+        z.selectedIndex = 1;
+    }
+
+}
 </script>
 
 </body>
