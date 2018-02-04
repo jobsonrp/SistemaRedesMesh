@@ -10,32 +10,60 @@
 	
 	$dateNow = new DateTime();
 	$dateNow->setTimezone(new DateTimeZone('America/Recife'));
-	$fdateNow = $dateNow->format('Y-m-d H:i:s');
+	
+	$dateX = $dateNow->format('Y-m-d');
+	
+	$fdateNow = $dateNow->format('Y-m-d');
 	$dateEndInitial = $fdateNow;
 	$dateNow->modify('-30 day');
-	$dateBeginInitial = $dateNow->format('Y-m-d H:i:s');
+	$dateBeginInitial = $dateNow->format('Y-m-d');
+	
+	$dateTeste = new DateTime('2006-12-12 10:05:58');
+	$dateTeste->modify('+ 5 min');
+	$dateNewTeste = $dateTeste->format('Y-m-d H:i:s');
+	
 	
 	if(!isset($_GET['data1'])){
-		$data1= $dateBeginInitial; //$dateBeginInitial;// 
+		$data1= $dateBeginInitial; // 2018-01-05 09:31:00
 	}
 	else{
 		$data1=$_GET['data1'];
 	}
 	
+	if(!isset($_GET['hora1'])){
+		$hora1= '00:00';
+	}
+	else{
+		$hora1=$_GET['hora1'];
+	}
+	
 	if(!isset($_GET['data2'])){
-		$data2= $dateEndInitial; //$dateEndInitial;
+		$data2= $dateEndInitial; // 2018-01-05 09:31:00
 	}
 	else{
 		$data2=$_GET['data2'];
 	}
 	
+	if(!isset($_GET['hora2'])){
+		$hora2= '01:00';
+	}
+	else{
+		$hora2=$_GET['hora2'];
+	}
+	
+	//$data1 = $data1 . " " . $hora1;
+	//$data2 = $data2 . " " . $hora2;
+	
 	
 	$conexao = mysqli_connect("127.0.0.1", "root", "", "meshdb");
 	
-	$sql = "select qtd,tempo from sistemaTeste where time between '$data1' and '$data2'";
-	//$sql = "select * from sistemaTeste where tempo > 12"; 
+	//$sql = "select qtd,tempo from sistemaTeste where time between '$data1' and '$data2'"; OK
+	//$sql = "select * from sistemaTeste where tempo > 12";
+	//$sql = "select count(addr) as qtd from dadosMesh where time between '$data1' and '$data2'";
+	//select count(addr) as qtd, ssid from dadosMesh GROUP BY ssid; 
+	//"SELECT COUNT(Mac) as total, Mac  FROM dados where dataAlter >= '" + maskedTextBox1.Text.Trim() + "' and dataAlter >= '"+ maskedTextBox2.Text.Trim() + "' group by Ssid";
 	
-	//$sql = "select * from sistemaTeste";
+	$sql = "select * from sistemaTeste";
 	$resultado = mysqli_query($conexao,$sql);
 	
 	$i = 0;
@@ -61,7 +89,7 @@
 <meta name="description" content="">
 <meta name="author" content="">
 <!-- Le styles -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <link href="site/assets/css/bootstrap.min.css" rel="stylesheet">
 <link href="site/assets/css/font-awesome.min.css" rel="stylesheet">
 <link href="site/assets/css/style.css" rel="stylesheet">
@@ -89,7 +117,7 @@
 
 </head>
 <!-- /head-->
-<body data-spy="scroll" data-target=".navbar" onload="escondeInfo();">
+<body data-spy="scroll" data-target=".navbar">
 <nav id="topnav" class="navbar navbar-fixed-top navbar-default" role="navigation">
 <div class="container">
     <!-- Brand and toggle get grouped for better mobile display -->
@@ -176,15 +204,18 @@
 						</select>
 
 						<div id="busca_data">
-							Data Inicial:<input class="form-control" id="data1" name="data1" type="date" />
-							Data Final:<input class="form-control" id="data2" name="data2" type="date" />
+							Data Inicial:<input class="form-control" id="data1" name="data1" type="date" value = <?php echo $dateX ?> required/>
+							Hora Inicial:<input class="form-control" id="hora1" name="hora1" type="time" required/>
+							Data Final:<input class="form-control" id="data2" name="data2" type="date" required/>
+							Hora Final:<input class="form-control" id="hora2" name="hora2" type="time" required/>
 						</div>
 
 						<input class="btn-primary btn-lg pull-right" type="submit" value="Plotar"></input>
 		</form>
 		</br>
-		<?php echo "Data 1 = $data1" ?> </br>
-		<?php echo "Data 2 = $data2" ?>
+		<?php echo "Data X = $dateX" ?> </br>
+		<?php echo "Data 2 = $data2" ?> </br>
+		<?php echo "dateNewTeste = $dateNewTeste" ?>
 		
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script type="text/javascript">
@@ -343,22 +374,6 @@
 <script src="site/assets/js/toucheffects.js"></script>
 <script src="site/assets/js/animations.js"></script>
 <script src="site/assets/js/init.js"></script>
-
-<script>
-function mostraInfo() {
-    var x = document.getElementById('info');
-    if (x.style.display === 'none') {
-        x.style.display = 'block';
-    }
-}
-</script>
-
-<script>
-function escondeInfo() {
-    var x = document.getElementById('info');
-        x.style.display = 'none';
-}
-</script>
 
     <script src="site/assets/js/jquery-1.10.2.js"></script>
     <!-- BOOTSTRAP SCRIPTS  -->
