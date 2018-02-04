@@ -1,6 +1,10 @@
 <?php 
 	$qtds = array();
 	$tempos = array();
+
+	$qtdsP = array();
+	$potencias = array();
+	
 	$cor = array();
 	
 	$cor[0] = '#ff3300';
@@ -50,38 +54,90 @@
 	}
 	
 	if(!isset($_GET['intervalo'])){
-		$intervalo = '5';
+		$intervalo = 5;
 	}
 	else{
 		$intervalo = $_GET['intervalo'];
 	}
 	
-	$dt1 = new DateTime($data1 . " " . $hora1);
+	/*$dt1 = new DateTime($data1 . " " . $hora1);
 	
 	$dt2 = new DateTime($data1 . " " . $hora1);
 	$dt2->modify('+ ' . $intervalo . ' min');
 	
-	$dtFinal = new DateTime($data2 . " " . $hora2);
+	$dtFinal = new DateTime($data2 . " " . $hora2);*/
 	
 	$conexao = mysqli_connect("127.0.0.1", "root", "", "meshdb");
 	
-	$i = 0;
+	/*$pot1 = -110;
+	$pot2 = $pot1 + $intervalo;
+	$potX = $pot2;
 	
-	while ($dt1 < $dtFinal){
+	$dt1_Str = $dt1->format('Y-m-d H:i:s');
+	$dt2_Str = $dt2->format('Y-m-d H:i:s');
+	$sql = "SELECT COUNT(rssi) AS qtd FROM (SELECT rssi FROM dadosTeste WHERE datetime BETWEEN '$dt1_Str' AND '$dt2_Str' GROUP BY addr) grp WHERE rssi BETWEEN $pot1 AND $pot2";
+	//$sql = "SELECT COUNT(rssi) as qtd FROM dadosTeste WHERE datetime BETWEEN $dt1_Str AND $dt2_Str";
+	$resultado = mysqli_query($conexao,$sql);
+	$row3 = mysqli_fetch_object($resultado);
+	$row2 = $row3 -> qtd;*/
+	
+	if(!isset($_GET['tipoBusca'])){
+		$tipoBusca= 'nenhuma';
+	}
+	else{
+		$tipoBusca= $_GET['tipoBusca'];
+	}
+	
+	if ($tipoBusca == 'Data'){
+		$i = 0;
+		$dt1 = new DateTime($data1 . " " . $hora1);
+		$dt2 = new DateTime($data1 . " " . $hora1);
+		$dt2->modify('+ ' . $intervalo . ' min');
+		$dtFinal= new DateTime($data2 . " " . $hora2);
+		//$intervalo = (string)$intervalo;
+		while ($dt1 < $dtFinal){
+			$dt1_Str = $dt1->format('Y-m-d H:i:s');
+			$dt2_Str = $dt2->format('Y-m-d H:i:s');
+			
+			$sql = "SELECT COUNT(addr) AS qtd FROM (SELECT addr FROM dadosMesh WHERE datetime BETWEEN '$dt1_Str' AND '$dt2_Str' GROUP BY addr) grp";
+			$resultado = mysqli_query($conexao,$sql);
+			$row = mysqli_fetch_object($resultado);
+			$qtd = $row -> qtd;
+			$qtds[$i] = $qtd;
+			$tempo = $dt1_Str;
+			$tempos[$i] = $tempo;
+			$i = $i + 1;
+			$dt1->modify('+ ' . $intervalo . ' min');
+			$dt2->modify('+ ' . $intervalo . ' min');
+		}
+	}
+	
+	elseif ($tipoBusca == 'Potencia'){
+		$i = 0;
+		$pot1 = -110;
+		$pot2 = $pot1 + $intervalo;
+		$potX = $pot2;
+		$dt1 = new DateTime($data1 . " " . $hora1);
+		$dt2 = new DateTime($data2 . " " . $hora2);
 		$dt1_Str = $dt1->format('Y-m-d H:i:s');
 		$dt2_Str = $dt2->format('Y-m-d H:i:s');
-		
-		$sql = "select count(addr) as qtd from (select addr from dadosMesh where datetime between '$dt1_Str' and '$dt2_Str' group by addr) grp";
-		$resultado = mysqli_query($conexao,$sql);
-		$row = mysqli_fetch_object($resultado);
-		$qtd = $row -> qtd;
-		$qtds[$i] = $qtd;
-		$tempo = $dt1_Str;
-		$tempos[$i] = $tempo;
-		$i = $i + 1;
-		$dt1->modify('+ ' . $intervalo . ' min');
-		$dt2->modify('+ ' . $intervalo . ' min');
+		while ($pot1 < -10){
+			$sql = "SELECT COUNT(rssi) AS qtd FROM (SELECT rssi FROM dadosMesh WHERE datetime BETWEEN '$dt1_Str' AND '$dt2_Str' GROUP BY addr) grp WHERE rssi BETWEEN $pot1 AND $pot2";
+			$resultado = mysqli_query($conexao,$sql);
+			$row = mysqli_fetch_object($resultado);
+			$qtd = $row -> qtd;
+			$qtdsP[$i] = $qtd;
+			$potencia = $pot1;
+			$potencias[$i] = $potencia;
+			$i = $i + 1;
+			$pot1 = $pot1 + $intervalo;
+			$pot2 = $pot2 + $intervalo;
+			
+		}
 	}
+	
+	//SELECT COUNT(rssi) AS qtd FROM (SELECT rssi FROM dadosTeste where datetime between '$dt1_Str' and '$dt2_Str' GROUP BY addr) grp
+	//SELECT COUNT(rssi) AS qtd FROM (SELECT rssi FROM dadosTeste GROUP BY addr) grp WHERE rssi BETWEEN -96 AND -90
 	
 ?>
 
@@ -205,8 +261,8 @@
 <div class="row animated fadeInUpNow">
 		<form action = "index.php#Section-1" >
 				<caption>Opções de busca:</caption>
-						<select class="form-control" id="tipoBusca" name="tipoBusca">
-							<option selected="selected" value="">Escolha uma opção</option>
+						<select class="form-control" id="tipoBusca" name="tipoBusca" value = <?php echo $tipoBusca ?>>
+							<option value="">Escolha uma opção</option>
 							<option value="Data" >Por data</option>
 							<option value="Potencia" >Por Faixa de Potência</option>
 						</select>
@@ -216,7 +272,7 @@
 							Hora Inicial:<input class="form-control" id="hora1" name="hora1" type="time" value = <?php echo $hora1 ?> required/>
 							Data Final:<input class="form-control" id="data2" name="data2" type="date" value = <?php echo $data2 ?> required/>
 							Hora Final:<input class="form-control" id="hora2" name="hora2" type="time" value = <?php echo $hora2 ?> required/>
-							Intervalo de Tempo:<input class="form-control" id="intervalo" name="intervalo" type="text" value = <?php echo $intervalo ?> required/>
+							Intervalo de Tempo:<input class="form-control" id="intervalo" name="intervalo" type="number" value = <?php echo $intervalo ?> required/>
 						</div>
 
 						<input class="btn-primary btn-lg pull-right" type="submit" value="Plotar"></input>
@@ -284,14 +340,14 @@
     google.charts.setOnLoadCallback(drawChart);
     function drawChart() {
       var data = google.visualization.arrayToDataTable([
-        ["Tempo", "Qdt", { role: "style" } ],
+        ["Potencia", "Qdt", { role: "style" } ],
 		<?php 
 		$c = 0;
 		$k = $i;
 		for ($i=0; $i < $k; $i++){
 		?>
 
-		['<?php echo $tempos[$i] ?>', <?php echo $qtds[$i] ?>, '<?php echo $cor[$c] ?>'],
+		['<?php echo $potencias[$i] ?>', <?php echo $qtdsP[$i] ?>, '<?php echo $cor[$c] ?>'],
 
 		<?php 
 		$c = $c + 1;
