@@ -71,7 +71,7 @@
 		$dt1_Str = $dt1->format('Y-m-d H:i:s');
 		$dt2_Str = $dt2->format('Y-m-d H:i:s');
 		
-		$sql = "select count(addr) as qtd from (select addr from dadosTeste where datetime between '$dt1_Str' and '$dt2_Str' group by addr) grp";
+		$sql = "select count(addr) as qtd from (select addr from dadosMesh where datetime between '$dt1_Str' and '$dt2_Str' group by addr) grp";
 		$resultado = mysqli_query($conexao,$sql);
 		$row = mysqli_fetch_object($resultado);
 		$qtd = $row -> qtd;
@@ -96,7 +96,7 @@
 <meta name="description" content="">
 <meta name="author" content="">
 <!-- Le styles -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="site/assets/js/jquery.min.js"></script>
 <link href="site/assets/css/bootstrap.min.css" rel="stylesheet">
 <link href="site/assets/css/font-awesome.min.css" rel="stylesheet">
 <link href="site/assets/css/style.css" rel="stylesheet">
@@ -142,7 +142,7 @@
         <ul class="nav navbar-nav navbar-right">
             <li class="active"><a href="#top-section">Home</a></li>
             <li><a href="#Section-1">Gráfico 1</a></li>
-            <li><a href="#Section-2">Gráfico 2</a></li>
+            <li><a href="#Section-3">Gráfico 2</a></li>
             <li><a href="#Section-4">Alunos</a></li>
             
         </ul>
@@ -199,18 +199,19 @@
 <div class="container demo-3">
 <div class="row">
 	<div class="page-header text-center col-sm-12 col-lg-12 animated fade">
-		<h1>Gráfico 1 - MAC's</h1>
+		<h1>Gráficos - MAC's</h1>
 	</div>
 </div>
 <div class="row animated fadeInUpNow">
 		<form action = "index.php#Section-1" >
 				<caption>Opções de busca:</caption>
 						<select class="form-control" id="tipoBusca" name="tipoBusca">
-							<option selected="selected" value="">Todos</option>
+							<option selected="selected" value="">Escolha uma opção</option>
 							<option value="Data" >Por data</option>
+							<option value="Potencia" >Por Faixa de Potência</option>
 						</select>
 
-						<div id="busca_data">
+						<div>
 							Data Inicial:<input class="form-control" id="data1" name="data1" type="date" value = <?php echo $data1 ?> required/>
 							Hora Inicial:<input class="form-control" id="hora1" name="hora1" type="time" value = <?php echo $hora1 ?> required/>
 							Data Final:<input class="form-control" id="data2" name="data2" type="date" value = <?php echo $data2 ?> required/>
@@ -222,8 +223,10 @@
 		</form>
 		
 </br></br></br>
-	
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<div id="grafico1">
+
+<script type="text/javascript" src="site/loader.js"></script>
   <script type="text/javascript">
     google.charts.load("current", {packages:['corechart']});
     google.charts.setOnLoadCallback(drawChart);
@@ -257,21 +260,75 @@
                        2]);
 
       var options = {
-        title: "Quantidade de MAC's por janelas de Tempo",
+        title: "Quantidade de MAC's por Intervalo de Tempo",
         width: 800,
         height: 400,
         vAxis: {title: "Quantidade de MAC's capturados"},
-        hAxis: {title: "Tempo (min)"},
+        hAxis: {title: "Data"},
         bar: {groupWidth: "95%"},
         legend: { position: "none" },
       };
-      var chart = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
+      var chart = new google.visualization.ColumnChart(document.getElementById("columnchart_values1"));
       chart.draw(view, options);
   }
   </script>
-<div id="columnchart_values" style="width: 900px; height: 300px;"></div>
+  <div id="columnchart_values1" style="width: 900px; height: 300px;"></div>
+
 </div>
+
+<div id="grafico2">
+
+<script type="text/javascript" src="site/loader.js"></script>
+  <script type="text/javascript">
+    google.charts.load("current", {packages:['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+    function drawChart() {
+      var data = google.visualization.arrayToDataTable([
+        ["Tempo", "Qdt", { role: "style" } ],
+		<?php 
+		$c = 0;
+		$k = $i;
+		for ($i=0; $i < $k; $i++){
+		?>
+
+		['<?php echo $tempos[$i] ?>', <?php echo $qtds[$i] ?>, '<?php echo $cor[$c] ?>'],
+
+		<?php 
+		$c = $c + 1;
+		if($c > 12){
+			$c = 0;
+			}
+			
+		} ?>
+        
+      ]);
+
+      var view = new google.visualization.DataView(data);
+      view.setColumns([0, 1,
+                       { calc: "stringify",
+                         sourceColumn: 1,
+                         type: "string",
+                         role: "annotation" },
+                       2]);
+
+      var options = {
+        title: "Quantidade de MAC's por Faixa de Potência",
+        width: 800,
+        height: 400,
+        vAxis: {title: "Quantidade de MAC's capturados"},
+        hAxis: {title: "Potência"},
+        bar: {groupWidth: "95%"},
+        legend: { position: "none" },
+      };
+      var chart = new google.visualization.ColumnChart(document.getElementById("columnchart_values2"));
+      chart.draw(view, options);
+  }
+  </script>
+  <div id="columnchart_values2" style="width: 900px; height: 300px;"></div>
+
 </div>
+
+
 </section>
 
 <!-- SECTION-4(reviews) -->
@@ -397,6 +454,38 @@
       <!-- CUSTOM SCRIPTS  -->
     <script src="site/assets/js/custom.js"></script>
     <script src="rest-api/getLogin.js"></script>
+
+<script>
+$(document).ready(function(){
+  $("#grafico1").hide();
+    $('#tipoBusca').on('change', function() {
+      if ( this.value == 'Data')
+      {
+        $("#grafico1").show();
+      }
+      else
+      {
+        $("#grafico1").hide();
+      }
+    });
+});
+</script>
+
+<script>
+$(document).ready(function(){
+  $("#grafico2").hide();
+    $('#tipoBusca').on('change', function() {
+      if ( this.value == 'Potencia')
+      {
+        $("#grafico2").show();
+      }
+      else
+      {
+        $("#grafico2").hide();
+      }
+    });
+});
+</script>
 
 </body>
 </html>
