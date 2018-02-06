@@ -166,6 +166,7 @@
     <link href="site/assets/css/styletable.css" rel="stylesheet" />
 
 <style>
+
 #Section-5 {
     background-image: black;
     background-color: white;
@@ -177,7 +178,7 @@
 
 </head>
 <!-- /head-->
-<body data-spy="scroll" data-target=".navbar" onload="mostrarGrafs();">
+<body data-spy="scroll" data-target=".navbar" onload="mostrarGrafs();mostrarCampoBusca();">
 <nav id="topnav" class="navbar navbar-fixed-top navbar-default" role="navigation">
 <div class="container">
     <!-- Brand and toggle get grouped for better mobile display -->
@@ -254,25 +255,50 @@
 		<h1>Gráficos - MAC's</h1>
 	</div>
 </div>
-<div class="row animated fadeInUpNow">
-		<form action = "#Section-1">
-				<caption>Opções de busca:</caption>
-						<div>
-				
-							<select class="form-control" id="tipoBusca" name="tipoBusca" value = <?php echo $tipoBusca ?>>
-								<option value="Data" <?php if ($tipoBusca == 'Data') echo 'selected="selected"'; ?> >Por Intervalo de Tempo</option>
-								<option value="Potencia" <?php if ($tipoBusca == 'Potencia') echo 'selected="selected"'; ?> >Por Faixa de Potência</option>
-							</select>
-		
-							Data Inicial:<input class="form-control" id="data1" name="data1" type="date" value = <?php echo $data1 ?> required/>
-							Hora Inicial:<input class="form-control" id="hora1" name="hora1" type="time" value = <?php echo $hora1 ?> required/>
-							Data Final:<input class="form-control" id="data2" name="data2" type="date" value = <?php echo $data2 ?> required/>
-							Hora Final:<input class="form-control" id="hora2" name="hora2" type="time" value = <?php echo $hora2 ?> required/>
-							Intervalo de Tempo:<input class="form-control" id="intervalo" name="intervalo" type="number" value = <?php echo $intervalo ?> required/>
-						</div>
 
-						<input class="btn-primary btn-lg pull-right" type="submit" value="Plotar"></input>
-		</form>
+<div class="container">
+	<form action = "#Section-1" class="form-inline">
+				<div class="form-group">
+					<caption>Opções de Consulta:</caption>
+					<select class="form-control" id="tipoBusca" name="tipoBusca" value = <?php echo $tipoBusca ?>>
+						<option value="Data" <?php if ($tipoBusca == 'Data') echo 'selected="selected"'; ?> >Por Intervalo de Tempo</option>
+						<option value="Potencia" <?php if ($tipoBusca == 'Potencia') echo 'selected="selected"'; ?> >Por Faixa de Potência</option>
+					</select>
+				</div>
+				<div class="form-group">
+					Data Inicial:<input class="form-control" id="data1" name="data1" type="date" value = <?php echo $data1 ?> required/>
+				</div>	
+				<div class="form-group">
+					Hora Inicial:<input class="form-control" id="hora1" name="hora1" type="time" value = <?php echo $hora1 ?> required/>
+				</div>
+				<div class="form-group">	
+					Data Final:<input class="form-control" id="data2" name="data2" type="date" value = <?php echo $data2 ?> required/>
+				</div>
+				<div class="form-group">	
+					Hora Final:<input class="form-control" id="hora2" name="hora2" type="time" value = <?php echo $hora2 ?> required/>
+				</div>
+				
+				<table style="width:100%">
+				  <tr>
+				    <td>
+					<div class="form-group;">
+					<div id="intervaloTempo" <?php if ($tipoBusca == 'Potencia') echo 'hidden'; ?> >Intervalo de Tempo (min):</div>
+					<div id="faixaPotencia" <?php if ($tipoBusca == 'Data') echo 'hidden'; ?> >Faixa de Potência (dBm):</div>
+					<input class="form-control" id="intervalo" name="intervalo" type="number" value = <?php echo $intervalo ?> required/>
+				    </div>			    
+				    
+				    </td>
+				    <td style="text-align:right;">
+				    <div class="form-group">
+					<input class="btn-success btn-lg align-bottom" type="submit" value="Plotar"></input>
+					</div>
+				    </td>
+
+				  </tr>
+				</table>
+				
+				
+	</form>
 		
 </br></br></br>
 
@@ -510,14 +536,16 @@
 <script>
 $(document).ready(function(){
   $("#grafico1").hide();
-    $('#tipoBusca').on('click', function() {
+    $('#tipoBusca').on('change', function() {
       if ( this.value == 'Data')
       {
         $("#grafico1").show();
+        $("#intervaloTempo").show();
       }
       else
       {
         $("#grafico1").hide();
+        $("#intervaloTempo").hide();
       }
     });
 });
@@ -526,17 +554,37 @@ $(document).ready(function(){
 <script>
 $(document).ready(function(){
   $("#grafico2").hide();
-    $('#tipoBusca').on('click', function() {
+  $("#faixaPotencia").hide();
+    $('#tipoBusca').on('change', function() {
       if ( this.value == 'Potencia')
       {
         $("#grafico2").show();
+        $("#faixaPotencia").show();
       }
       else
       {
         $("#grafico2").hide();
+        $("#faixaPotencia").hide();
       }
     });
 });
+</script>
+
+<script>
+function mostrarCampoBusca() {
+    var t = document.getElementById('tipoBusca');
+    var i = document.getElementById('intervaloTempo');
+    var f = document.getElementById('faixaPotencia');
+
+    if (t.value === 'Data') {
+        i.style.display = 'block';
+        f.style.display = 'none';
+    }
+    else if (t.value === 'Potencia') {
+    	i.style.display = 'none';
+        f.style.display = 'block';
+    }
+}
 </script>
 
 <script>
