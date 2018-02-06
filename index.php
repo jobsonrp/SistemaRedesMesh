@@ -136,9 +136,6 @@
 		}
 	}
 	
-	//SELECT COUNT(rssi) AS qtd FROM (SELECT rssi FROM dadosTeste where datetime between '$dt1_Str' and '$dt2_Str' GROUP BY addr) grp
-	//SELECT COUNT(rssi) AS qtd FROM (SELECT rssi FROM dadosTeste GROUP BY addr) grp WHERE rssi BETWEEN -96 AND -90
-	
 ?>
 
 <!DOCTYPE html>
@@ -197,7 +194,7 @@
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav navbar-right">
             <li class="active"><a href="#top-section">Home</a></li>
-            <li><a href="#Section-1">Graficos</a></li>
+            <li><a href="#Section-1">Gráficos</a></li>
             <li><a href="#Section-4">Alunos</a></li>
             
         </ul>
@@ -263,8 +260,8 @@
 						<div>
 				
 							<select class="form-control" id="tipoBusca" name="tipoBusca" value = <?php echo $tipoBusca ?>>
-								<option value="Data" <?php if ($_GET['tipoBusca'] == 'Data') echo 'selected="selected"'; ?> >Por Intervalo de Tempo</option>
-								<option value="Potencia" <?php if ($_GET['tipoBusca'] == 'Potencia') echo 'selected="selected"'; ?> >Por Faixa de Potência</option>
+								<option value="Data" <?php if ($tipoBusca == 'Data') echo 'selected="selected"'; ?> >Por Intervalo de Tempo</option>
+								<option value="Potencia" <?php if ($tipoBusca == 'Potencia') echo 'selected="selected"'; ?> >Por Faixa de Potência</option>
 							</select>
 		
 							Data Inicial:<input class="form-control" id="data1" name="data1" type="date" value = <?php echo $data1 ?> required/>
